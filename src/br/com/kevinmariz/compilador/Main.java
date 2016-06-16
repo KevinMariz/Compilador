@@ -1,7 +1,9 @@
 package br.com.kevinmariz.compilador;
 
-import java.beans.FeatureDescriptor;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -44,6 +46,7 @@ public class Main {
 
                     /* Chamando a análise sintática pelo
                        símbolo inicial */
+
                     symbolTable.initScope();
                     INICIAR();
                     symbolTable.finishScope();
@@ -92,73 +95,60 @@ public class Main {
 
     private static void INICIAR() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
     	Token token = scanner.nextToken();
-    	
-    	
+    		
     	if(checkTipo(token, TipoToken.R_MAIN)){
     		token = scanner.nextToken();
-    		System.out.println("main");
     	}else{
-    		throw new SinException(token, new TipoToken[]{TipoToken.R_MAIN},
-                    scanner.getLine(), scanner.getColumn());
+    		throw new SinException(token, new TipoToken[]{TipoToken.R_MAIN}, scanner.getLine(), scanner.getColumn());
     	}
     	if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
     		token = scanner.nextToken();
-    		System.out.println("(");
     	}else{
-    		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-                       scanner.getLine(), scanner.getColumn());
+    		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
     	}
     	if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
     		token = scanner.nextToken();
-    		System.out.println(")");
     	}else{
-    		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
-                          scanner.getLine(), scanner.getColumn());
+    		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());
     	}
     	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-    		System.out.println("{");
     		PROGRAMA();
     		token = scanner.nextToken();
     	}else{
-    		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES},
-                       scanner.getLine(), scanner.getColumn());
+    		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
     	}
         if(checkTipo(token, TipoToken.FECHA_CHAVES)){
-        	System.out.println("}");
-        	//gerar codigo
+        	//TODO: gerar codigo
         }else{
-        	throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES},
-                     scanner.getLine(), scanner.getColumn());
+        	throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
         }
+        
     }
     
     private static void PROGRAMA() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-    	Token token = scanner.nextToken();
- 
+    	LISTA_DECL();
+        LISTA_CMD();
+        
+        Token token = scanner.nextToken();
     	if(token != null){
-    		scanner.rollbackToken(token);
     		
-    		token = scanner.nextToken();
    		if(checkTipo(token, TipoToken.R_IF)){
         	token = scanner.nextToken();
-        	System.out.println("if");
         	if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
-//        		EXPRESSAO();
-        		System.out.println("(");
+        		EXPRESSAO();
         		token = scanner.nextToken();
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
         				scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
+
         		token = scanner.nextToken();
-        		System.out.println(")");
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
         				scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-        		System.out.println("{");
         		PROGRAMA();
         		token = scanner.nextToken();
         	}else{
@@ -166,34 +156,29 @@ public class Main {
         				scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
-        		System.out.println("}");
         		CHAM_ELSE();
-            	PROGRAMA();
+        		PROGRAMA();
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES},
         				scanner.getLine(), scanner.getColumn());
-        		
         	}
     	}else if(checkTipo(token, TipoToken.R_WHILE)){
     		token = scanner.nextToken();
-    		System.out.println("while");
+    		
         	if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
-//        		EXPRESSAO();
-        		System.out.println("(");
+        		EXPRESSAO();
         		token = scanner.nextToken();
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
         				scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
-        		System.out.println(")");
         		token = scanner.nextToken();
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
         				scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-        		System.out.println("{");
         		PROGRAMA();
         		token = scanner.nextToken();
         	}else{
@@ -201,7 +186,6 @@ public class Main {
         				scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
-        		System.out.println("}");
             	PROGRAMA();
         		//gerar codigo
         	}else{
@@ -210,25 +194,17 @@ public class Main {
         	}
     	}else{
     		scanner.rollbackToken(token);
-    	}
-    		
-//    		LISTA_DECL();
-//            LISTA_CMD();
+    		}
     	}
     	}
     private static void CHAM_ELSE() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
     	Token token = scanner.nextToken();
 
-    	if(token != null){    	
-    		scanner.rollbackToken(token);
-    		
-    		token = scanner.nextToken();
-    		
+    	if(token != null){
+    		    		
     		if(checkTipo(token, TipoToken.R_ELSE)){
-    			System.out.println("else");
     			token = scanner.nextToken();
     			if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-        			System.out.println("{");
     	    		PROGRAMA();
     	    		 token = scanner.nextToken();
     			}else{
@@ -236,7 +212,6 @@ public class Main {
      	        				scanner.getLine(), scanner.getColumn());
      	    		}
     	    	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
-    	    		System.out.println("}");
     	        	PROGRAMA();
     	    		//gerar codigo
     	    	}else{
@@ -245,192 +220,388 @@ public class Main {
     	    	}
     	    }else{
     		scanner.rollbackToken(token);
-    }
+    	    }
     	}
     }
     
- /*	private static void LISTA_DECL() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
+	private static void LISTA_DECL() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
+    	DECL();
     	Token token = scanner.nextToken();
-
-        if (token != null) {
-            scanner.rollbackToken(token);
-        
-    	LISTA_DECL();
-    	token = scanner.nextToken();
-    	if (checkTipo(token, TipoToken.PONTO_VIRGULA)) {
-            //TODO: Local para talvez gerar um código
-        } else {
-            throw new SinException(token, new TipoToken[]{TipoToken.PONTO_VIRGULA},
-                    scanner.getLine(), scanner.getColumn());
-        }
-    	LISTA_DECL();
-        }
+    	if (token != null) {
+    		if (checkTipo(token, TipoToken.PONTO_VIRGULA)) {
+    			LISTA_DECL();
+    		}else{
+    			scanner.rollbackToken(token);
+    		}
+    	}
     }
     
-	       private static void LISTA_CMD() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-    	Token token = scanner.nextToken();
-
+	private static void LISTA_CMD() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
+		CMD();
+		Token token = scanner.nextToken();
         if (token != null) {
-            scanner.rollbackToken(token);
-            CMD();
-    	token = scanner.nextToken();
-    	if (checkTipo(token, TipoToken.PONTO_VIRGULA)) {
-            //TODO: Local para talvez gerar um código
-        } else {
-            throw new SinException(token, new TipoToken[]{TipoToken.PONTO_VIRGULA},
-                    scanner.getLine(), scanner.getColumn());
+            
+    	if (checkTipo(token, TipoToken.PONTO_VIRGULA)){
+    		LISTA_CMD();	
+        }else{
+        	scanner.rollbackToken(token);
         }
-    	LISTA_CMD();
         }
     }
 
      private static void CMD() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-        Token token = scanner.nextToken();
-        try{
-        	ATR();
-        }catch(SinException ex){
-        	try{
-        	PRINT();
-        	}catch(SinException e){
-        		try{
-        			SCAN();
-        		}catch(SinException exC){
-        			throw new SinException(token, new TipoToken[]{TipoToken.ID, TipoToken.R_PRINTF, TipoToken.R_SCANF },
-                            scanner.getLine(), scanner.getColumn());
-        		}
-        	}
-        }
+
+        ATR();
+        PRINT();
+        SCAN();
+
         
     }
 
-           private static void CMD_COMP() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-        Token token = scanner.nextToken();
+          private static void DECL() throws IOException, LexException, SymbolExistsException, SinException  {
+        	  Token token = scanner.nextToken();
+        	  
+        	  	if(token != null){
+        		  
+        		if (checkTipo(token, TipoToken.INT) || checkTipo(token, TipoToken.FLOAT) || checkTipo(token, TipoToken.CHAR)){
+        			LISTA_ID();
+        	  	}else{
+        		  	scanner.rollbackToken(token);
+        	  	}
+          }
+          }
+           
+           private static void LISTA_ID() throws SinException, IOException, LexException, SymbolExistsException {
+        	   ID();
+        	   FIM_LISTA_ID();
+           }
 
-        if (checkTipo(token, TipoToken.OP_ATRIBUICAO)) {
-            EXP();
+        private static void ID() throws SinException, IOException, LexException, SymbolExistsException {
+        	 Token token = scanner.nextToken();
 
-            Symbol sym = symbolTable.search(tokens.get(0).getLexema());
-
-            if (sym != null) {
-                String tipo_exp = pct.pop();
-                if (sym.getType().equals("int") && tipo_exp.equals("inteiro")
-                        || sym.getType().equals("float") || sym.getType().equals("double")) {
-                    atrb.add(sym.getId() + " <- " + exp + ";");
-                } else {
-                    throw new InvalidTypeException(sym, tipo_exp);
-                }
-            } else {
-                throw new SymbolNotFoundException(new Symbol(tokens.get(0).getLexema(), scanner.getLine()));
-            }
-            tokens.clear();
-        } else {
-            scanner.rollbackToken(token);
-            LISTA_IDS();
-        }
-    }
-
-    private static void EXP() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-        CMD_COMP_LINHA();
-        if (pct.size() > 1) {
-            String operando1 = pct.pop();
-            String operando2 = pct.pop();
-
-            if (operando1.equals("real") || operando2.equals("real"))
-                pct.push("real");
-            else
-                pct.push("inteiro");
-        }
-        FIM_EXP();
-    }
-
-    private static void FIM_EXP() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-        Token token = scanner.nextToken();
-
-        if (token != null) {
-            boolean keepRunning = true;
-            scanner.rollbackToken(token);
-
-            try {
-                OP();
-            } catch (SinException ex) {
-                scanner.rollbackToken(ex.getToken());
-                keepRunning = false;
-            }
-
-            if (keepRunning) {
-                EXP();
-            }
-        }
-    }
-
-    private static void OP() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-        Token token = scanner.nextToken();
-
-        if (checkTipo(token, TipoToken.OP_ATRIBUICAO)
-                || checkTipo(token, TipoToken.OP_MENOS)) {
-            //TODO: mais um belo local para gerar um código
-            exp += token.getTipo();
-        } else {
-            throw new SinException(token, new TipoToken[]{TipoToken.OP_ATRIBUICAO, TipoToken.OP_MENOS},
-                    scanner.getLine(), scanner.getColumn());
-        }
-    }
-
-    private static void CMD_COMP_LINHA() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-        Token token = scanner.nextToken();
-        if (checkTipo(token, TipoToken.NUM_INTEIRO)
-                || checkTipo(token, TipoToken.NUM_REAL)) {
-            exp += token.getLexema();
-            pct.push(token.getTipo().toString());
-        } else if (checkTipo(token, TipoToken.ID)) {
-            Symbol sym = symbolTable.search(token.getLexema());
-
-            if (sym != null) {
-                exp += token.getLexema();
-                pct.push(sym.getType().equals("int") ? "inteiro" : "real");
-            } else {
-                throw new SymbolNotFoundException(new Symbol(token.getLexema(), scanner.getLine()));
-            }
-        } else {
-            throw new SinException(token, new TipoToken[]{TipoToken.NUM_INTEIRO, TipoToken.NUM_REAL},
-                    scanner.getLine(), scanner.getColumn());
-        }
-    }
-
-    private static void LISTA_IDS() throws SinException, IOException, LexException, SymbolExistsException {
-        Token token = scanner.nextToken();
-        if (checkTipo(token, TipoToken.VIRGULA)) {
-            token = scanner.nextToken();
-            if (checkTipo(token, TipoToken.ID)) {
-                tokens.add(token);
-                LISTA_IDS();
-            }
-        } else if (checkTipo(token, TipoToken.DOIS_PONTOS)) {
-            token = scanner.nextToken();
-            if (checkTipo(token, TipoToken.TIPO_VAR)) {
-                for (Token t : tokens) {
-                    symbolTable.insert(new Symbol(t.getLexema(), token.getLexema(), scanner.getLine()));
-                    log(symbolTable);
-                }
-
-                String tipoFinal = token.getLexema().equals("int") ? "INTEGER"
-                        : token.getLexema().equals("float") ? "FLOAT" : "DOUBLE";
-
-                for (Token t : tokens) {
-                    decl.add(tipoFinal + " " + t.getLexema() + ";");
-                }
-                tokens.clear();
-            } else {
-                throw new SinException(token, new TipoToken[]{TipoToken.TIPO_VAR},
+         	if (checkTipo(token, TipoToken.ID)){
+         		ATR_ID();
+         	}else{
+         		throw new SinException(token, new TipoToken[]{TipoToken.ID},
                         scanner.getLine(), scanner.getColumn());
-            }
-        } else {
-            throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA,TipoToken.DOIS_PONTOS},
+         	}
+			
+		}
+
+		private static void FIM_LISTA_ID() throws SinException, IOException, LexException, SymbolExistsException {
+        	   Token token = scanner.nextToken();
+        	   
+        	   if(token != null){
+        		   
+        		   if(checkTipo(token, TipoToken.VIRGULA)){
+        			   LISTA_ID();
+        		   }else{
+        		   scanner.rollbackToken(token);
+        	   }
+        	   }
+		}
+        
+		private static void ATR_ID() throws SinException, IOException, LexException, SymbolExistsException {
+			Token token = scanner.nextToken();
+			
+			if(token != null){
+			
+				if(checkTipo(token, TipoToken.OP_ATRIBUICAO)){
+					EXP();
+				}else{
+				scanner.rollbackToken(token);
+			}
+			}
+		}
+		
+		private static void EXP() throws SinException, IOException, LexException, SymbolExistsException {
+			OP();
+			OPERACAO();
+			
+		}
+
+	private static void OPERACAO() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(token != null){
+			
+		if(checkTipo(token, TipoToken.OP_MAIS) || checkTipo(token, TipoToken.OP_MENOS) || checkTipo(token, TipoToken.OP_MULTIPLICACAO) || checkTipo(token, TipoToken.OP_DIVISAO)
+				|| (token.getLexema().startsWith("+") ||  token.getLexema().startsWith("-"))){
+				EXP();
+		}else{
+			scanner.rollbackToken(token);
+		}
+		}				
+	}
+
+	private static void OP() throws SinException, IOException, LexException, SymbolExistsException {
+			Token token = scanner.nextToken();
+			if(token != null){
+				
+			if(checkTipo(token, TipoToken.ID) || checkTipo(token, TipoToken.NUM_INTEIRO) || checkTipo(token, TipoToken.NUM_REAL)){
+				// gerer codigo
+			}else{
+				scanner.rollbackToken(token);
+			}
+			}
+			
+		}
+	
+	private static void ATR() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(token != null){
+		
+		if(checkTipo(token, TipoToken.ID)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.OP_ATRIBUICAO)){
+				EXP();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.OP_ATRIBUICAO},
+                        scanner.getLine(), scanner.getColumn());
+			}
+		}else{
+			scanner.rollbackToken(token);
+		}
+		
+		}
+	}
+	
+	private static void PRINT() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(token != null){
+			
+		if(checkTipo(token, TipoToken.R_PRINTF)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
+				P_PRINT();
+				token = scanner.nextToken();
+			}else{
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
+	                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
+				//gerar codigo
+			}else{
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
+	                        scanner.getLine(), scanner.getColumn());
+			}
+		}else{
+			scanner.rollbackToken(token);
+		}
+		
+		}
+	}
+
+	private static void P_PRINT() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		
+		if(checkTipo(token, TipoToken.STRING)){
+			
+		}else if(checkTipo(token, TipoToken.FORMAT_INT)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.VIRGULA)){
+				F_INT();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
+                        scanner.getLine(), scanner.getColumn());
+			}	
+		}else if(checkTipo(token, TipoToken.FORMAT_FLOAT)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.VIRGULA)){
+				F_FLOAT();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
+                        scanner.getLine(), scanner.getColumn());
+			}
+		}else if(checkTipo(token, TipoToken.FORMAT_CHAR)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.VIRGULA)){
+				F_CHAR();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
+                        scanner.getLine(), scanner.getColumn());
+			}
+		}else{
+			throw new SinException(token, new TipoToken[]{TipoToken.STRING, TipoToken.FORMAT_INT, TipoToken.FORMAT_FLOAT, TipoToken.CHAR},
                     scanner.getLine(), scanner.getColumn());
-        }
-    }
-*/
-    private static boolean checkTipo(Token token, TipoToken tipo) {
+		}
+	}
+
+	private static void SCAN() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(token != null){
+		
+		if(checkTipo(token, TipoToken.R_SCANF)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
+				F_SCAN();
+				token = scanner.nextToken();
+			}else{
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
+	                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
+				//gerar codigo
+			}else{
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
+	                        scanner.getLine(), scanner.getColumn());
+			}
+		}else{
+			scanner.rollbackToken(token);
+		}
+		
+		}
+	}
+	
+	private static void F_SCAN() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(checkTipo(token, TipoToken.FORMAT_INT)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.VIRGULA)){
+				token = scanner.nextToken();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
+                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.E_COM)){
+				token = scanner.nextToken();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.E_COM},
+                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.ID)){
+				
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.ID},
+                        scanner.getLine(), scanner.getColumn());
+			}
+		}else if(checkTipo(token, TipoToken.FORMAT_FLOAT)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.VIRGULA)){
+				token = scanner.nextToken();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
+                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.E_COM)){
+				token = scanner.nextToken();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.E_COM},
+                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.ID)){
+				
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.ID},
+                        scanner.getLine(), scanner.getColumn());
+			}
+		}else if(checkTipo(token, TipoToken.FORMAT_CHAR)){
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.VIRGULA)){
+				token = scanner.nextToken();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
+                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.E_COM)){
+				token = scanner.nextToken();
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.E_COM},
+                        scanner.getLine(), scanner.getColumn());
+			}
+			if(checkTipo(token, TipoToken.ID)){
+				
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.ID},
+                        scanner.getLine(), scanner.getColumn());
+			}
+		}else{
+			throw new SinException(token, new TipoToken[]{TipoToken.FORMAT_INT, TipoToken.FORMAT_FLOAT, TipoToken.CHAR},
+                    scanner.getLine(), scanner.getColumn());
+		}
+	}
+	
+	private static void F_INT() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(checkTipo(token, TipoToken.NUM_INTEIRO)){
+			//gerar codigo
+		}else{
+			throw new SinException(token, new TipoToken[]{TipoToken.NUM_INTEIRO},
+                    scanner.getLine(), scanner.getColumn());
+		}
+	}
+	
+	private static void F_FLOAT() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(checkTipo(token, TipoToken.NUM_REAL)){
+			//gerar codigo
+		}else{
+			throw new SinException(token, new TipoToken[]{TipoToken.NUM_REAL},
+                    scanner.getLine(), scanner.getColumn());
+		}
+	}
+	
+	private static void F_CHAR() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		if(checkTipo(token, TipoToken.CHAR)){
+			//gerar codigo
+		}else{
+			throw new SinException(token, new TipoToken[]{TipoToken.CHAR},
+                    scanner.getLine(), scanner.getColumn());
+		}
+	}
+	
+	private static void EXPRESSAO() throws SinException, IOException, LexException, SymbolExistsException {
+			EXPRESSAO_SIMPLES();
+			OP_RELACIONAL();
+			EXPRESSAO_SIMPLES();
+	}
+
+	private static void EXPRESSAO_SIMPLES() throws SinException, IOException, LexException, SymbolExistsException {
+		FATOR();
+	}
+
+	private static void FATOR() throws SinException, IOException, LexException, SymbolExistsException {
+		OP();
+		Token token = scanner.nextToken();
+		if(token != null){
+			
+		if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
+			EXPRESSAO();
+			EXP();
+			token = scanner.nextToken();
+			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
+//				TODO: gerar codigo
+			}else{
+				throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
+	                    scanner.getLine(), scanner.getColumn());}
+		}else{
+			scanner.rollbackToken(token);
+		}
+		}
+	}
+	
+	
+	private static void OP_RELACIONAL() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		
+		if(token != null){
+		
+		if(checkTipo(token, TipoToken.OP_IGUALDADE) || checkTipo(token, TipoToken.OP_MENORQUE) || checkTipo(token, TipoToken.OP_MAIORQUE) 
+				|| checkTipo(token, TipoToken.OP_MENOR_IGUAL) || checkTipo(token, TipoToken.OP_MAIOR_IGUAL) || checkTipo(token, TipoToken.OP_DIFERENTE) 
+				|| checkTipo(token, TipoToken.OR) || checkTipo(token, TipoToken.AND)){
+		
+		}else{
+			scanner.rollbackToken(token);
+			
+			/*			throw new SinException(token, new TipoToken[]{TipoToken.OP_MAIORQUE, TipoToken.OP_IGUALDADE, TipoToken.OP_MENORQUE, 
+					TipoToken.OP_MENOR_IGUAL, TipoToken.OP_MAIOR_IGUAL, TipoToken.OP_DIFERENTE
+					,TipoToken.OR, TipoToken.AND}, scanner.getLine(), scanner.getColumn());
+*/		}
+		}
+	}
+	
+
+	private static boolean checkTipo(Token token, TipoToken tipo) {
         return token != null && token.getTipo() == tipo;
     }
 

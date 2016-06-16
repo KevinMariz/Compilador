@@ -230,7 +230,7 @@ public class Scanner {
                 case 22:{
                 	if(st.ch == '=') {
                 		st.lexema += st.ch;
-                		st.token = new Token(TipoToken.OP_NEGACAO);
+                		st.token = new Token(TipoToken.OP_DIFERENTE);
                 	}else{
                 		throw new LexException(st.ch, lineIdx, columnIdx);
                 	}
@@ -358,8 +358,8 @@ public class Scanner {
                     	st.lexema += st.ch;
                     	st.state = 37;
                     } else if(isLetterOrNumberOrUnderline(st.ch)){
-                    	st.token = new Token(TipoToken.ID, st.lexema);
-                    	rollback(st.ch);
+                    	st.lexema += st.ch;
+                    	st.state = 38;
                     }else{
                     	throw new LexException(st.ch, lineIdx, columnIdx);
                     }
