@@ -138,29 +138,25 @@ public class Main {
         		EXPRESSAO();
         		token = scanner.nextToken();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
 
         		token = scanner.nextToken();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
         		PROGRAMA();
         		token = scanner.nextToken();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
         		CHAM_ELSE();
         		PROGRAMA();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
         	}
     	}else if(checkTipo(token, TipoToken.R_WHILE)){
     		token = scanner.nextToken();
@@ -169,28 +165,24 @@ public class Main {
         		EXPRESSAO();
         		token = scanner.nextToken();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
         		token = scanner.nextToken();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
         		PROGRAMA();
         		token = scanner.nextToken();
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
         	}
         	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
             	PROGRAMA();
         		//gerar codigo
         	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES},
-        				scanner.getLine(), scanner.getColumn());
+        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
         	}
     	}else{
     		scanner.rollbackToken(token);
@@ -208,15 +200,13 @@ public class Main {
     	    		PROGRAMA();
     	    		 token = scanner.nextToken();
     			}else{
-     	    			throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES},
-     	        				scanner.getLine(), scanner.getColumn());
+     	    			throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
      	    		}
     	    	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
     	        	PROGRAMA();
-    	    		//gerar codigo
+    	    		//TODO: gerar codigo
     	    	}else{
-    	    		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES},
-    	        			scanner.getLine(), scanner.getColumn());
+    	    		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
     	    	}
     	    }else{
     		scanner.rollbackToken(token);
@@ -250,12 +240,9 @@ public class Main {
     }
 
      private static void CMD() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
-
         ATR();
         PRINT();
         SCAN();
-
-        
     }
 
           private static void DECL() throws IOException, LexException, SymbolExistsException, SinException  {
@@ -278,12 +265,11 @@ public class Main {
 
         private static void ID() throws SinException, IOException, LexException, SymbolExistsException {
         	 Token token = scanner.nextToken();
-
+        	 
          	if (checkTipo(token, TipoToken.ID)){
          		ATR_ID();
          	}else{
-         		throw new SinException(token, new TipoToken[]{TipoToken.ID},
-                        scanner.getLine(), scanner.getColumn());
+         		throw new SinException(token, new TipoToken[]{TipoToken.ID}, scanner.getLine(), scanner.getColumn());
          	}
 			
 		}
@@ -303,45 +289,40 @@ public class Main {
         
 		private static void ATR_ID() throws SinException, IOException, LexException, SymbolExistsException {
 			Token token = scanner.nextToken();
-			
 			if(token != null){
-			
 				if(checkTipo(token, TipoToken.OP_ATRIBUICAO)){
 					EXP();
 				}else{
 				scanner.rollbackToken(token);
-			}
+				}
 			}
 		}
 		
 		private static void EXP() throws SinException, IOException, LexException, SymbolExistsException {
 			OP();
 			OPERACAO();
-			
 		}
 
 	private static void OPERACAO() throws SinException, IOException, LexException, SymbolExistsException {
 		Token token = scanner.nextToken();
 		if(token != null){
-			
-		if(checkTipo(token, TipoToken.OP_MAIS) || checkTipo(token, TipoToken.OP_MENOS) || checkTipo(token, TipoToken.OP_MULTIPLICACAO) || checkTipo(token, TipoToken.OP_DIVISAO)
-				|| (token.getLexema().startsWith("+") ||  token.getLexema().startsWith("-"))){
+			if(checkTipo(token, TipoToken.OP_MAIS) || checkTipo(token, TipoToken.OP_MENOS) || checkTipo(token, TipoToken.OP_MULTIPLICACAO) || checkTipo(token, TipoToken.OP_DIVISAO)){
 				EXP();
-		}else{
-			scanner.rollbackToken(token);
-		}
+			}else{
+				scanner.rollbackToken(token);
+			}
 		}				
 	}
 
 	private static void OP() throws SinException, IOException, LexException, SymbolExistsException {
 			Token token = scanner.nextToken();
-			if(token != null){
-				
-			if(checkTipo(token, TipoToken.ID) || checkTipo(token, TipoToken.NUM_INTEIRO) || checkTipo(token, TipoToken.NUM_REAL)){
-				// gerer codigo
-			}else{
-				scanner.rollbackToken(token);
-			}
+//			if(token != null){
+				if(checkTipo(token, TipoToken.ID) || checkTipo(token, TipoToken.NUM_INTEIRO) || checkTipo(token, TipoToken.NUM_REAL)){
+					//TODO: gerer codigo
+				}else{
+					throw new SinException(token, new TipoToken[]{TipoToken.ID, TipoToken.NUM_INTEIRO, TipoToken.NUM_REAL}, scanner.getLine(), scanner.getColumn());
+//					scanner.rollbackToken(token);
+//				}
 			}
 			
 		}
@@ -355,8 +336,7 @@ public class Main {
 			if(checkTipo(token, TipoToken.OP_ATRIBUICAO)){
 				EXP();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.OP_ATRIBUICAO},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.OP_ATRIBUICAO}, scanner.getLine(), scanner.getColumn());
 			}
 		}else{
 			scanner.rollbackToken(token);
@@ -375,14 +355,12 @@ public class Main {
 				P_PRINT();
 				token = scanner.nextToken();
 			}else{
-					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-	                        scanner.getLine(), scanner.getColumn());
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
 				//gerar codigo
 			}else{
-					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-	                        scanner.getLine(), scanner.getColumn());
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
 			}
 		}else{
 			scanner.rollbackToken(token);
@@ -401,28 +379,24 @@ public class Main {
 			if(checkTipo(token, TipoToken.VIRGULA)){
 				F_INT();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA}, scanner.getLine(), scanner.getColumn());
 			}	
 		}else if(checkTipo(token, TipoToken.FORMAT_FLOAT)){
 			token = scanner.nextToken();
 			if(checkTipo(token, TipoToken.VIRGULA)){
 				F_FLOAT();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA}, scanner.getLine(), scanner.getColumn());
 			}
 		}else if(checkTipo(token, TipoToken.FORMAT_CHAR)){
 			token = scanner.nextToken();
 			if(checkTipo(token, TipoToken.VIRGULA)){
 				F_CHAR();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA}, scanner.getLine(), scanner.getColumn());
 			}
 		}else{
-			throw new SinException(token, new TipoToken[]{TipoToken.STRING, TipoToken.FORMAT_INT, TipoToken.FORMAT_FLOAT, TipoToken.CHAR},
-                    scanner.getLine(), scanner.getColumn());
+			throw new SinException(token, new TipoToken[]{TipoToken.STRING, TipoToken.FORMAT_INT, TipoToken.FORMAT_FLOAT, TipoToken.CHAR}, scanner.getLine(), scanner.getColumn());
 		}
 	}
 
@@ -436,14 +410,12 @@ public class Main {
 				F_SCAN();
 				token = scanner.nextToken();
 			}else{
-					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-	                        scanner.getLine(), scanner.getColumn());
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
 				//gerar codigo
 			}else{
-					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES},
-	                        scanner.getLine(), scanner.getColumn());
+					throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
 			}
 		}else{
 			scanner.rollbackToken(token);
@@ -459,64 +431,54 @@ public class Main {
 			if(checkTipo(token, TipoToken.VIRGULA)){
 				token = scanner.nextToken();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.E_COM)){
 				token = scanner.nextToken();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.E_COM},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.E_COM}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.ID)){
 				
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.ID},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.ID}, scanner.getLine(), scanner.getColumn());
 			}
 		}else if(checkTipo(token, TipoToken.FORMAT_FLOAT)){
 			token = scanner.nextToken();
 			if(checkTipo(token, TipoToken.VIRGULA)){
 				token = scanner.nextToken();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.E_COM)){
 				token = scanner.nextToken();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.E_COM},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.E_COM}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.ID)){
 				
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.ID},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.ID}, scanner.getLine(), scanner.getColumn());
 			}
 		}else if(checkTipo(token, TipoToken.FORMAT_CHAR)){
 			token = scanner.nextToken();
 			if(checkTipo(token, TipoToken.VIRGULA)){
 				token = scanner.nextToken();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.VIRGULA}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.E_COM)){
 				token = scanner.nextToken();
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.E_COM},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.E_COM}, scanner.getLine(), scanner.getColumn());
 			}
 			if(checkTipo(token, TipoToken.ID)){
 				
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.ID},
-                        scanner.getLine(), scanner.getColumn());
+				throw new SinException(token, new TipoToken[]{TipoToken.ID}, scanner.getLine(), scanner.getColumn());
 			}
 		}else{
-			throw new SinException(token, new TipoToken[]{TipoToken.FORMAT_INT, TipoToken.FORMAT_FLOAT, TipoToken.CHAR},
-                    scanner.getLine(), scanner.getColumn());
+			throw new SinException(token, new TipoToken[]{TipoToken.FORMAT_INT, TipoToken.FORMAT_FLOAT, TipoToken.CHAR}, scanner.getLine(), scanner.getColumn());
 		}
 	}
 	
@@ -525,8 +487,7 @@ public class Main {
 		if(checkTipo(token, TipoToken.NUM_INTEIRO)){
 			//gerar codigo
 		}else{
-			throw new SinException(token, new TipoToken[]{TipoToken.NUM_INTEIRO},
-                    scanner.getLine(), scanner.getColumn());
+			throw new SinException(token, new TipoToken[]{TipoToken.NUM_INTEIRO}, scanner.getLine(), scanner.getColumn());
 		}
 	}
 	
@@ -535,8 +496,7 @@ public class Main {
 		if(checkTipo(token, TipoToken.NUM_REAL)){
 			//gerar codigo
 		}else{
-			throw new SinException(token, new TipoToken[]{TipoToken.NUM_REAL},
-                    scanner.getLine(), scanner.getColumn());
+			throw new SinException(token, new TipoToken[]{TipoToken.NUM_REAL}, scanner.getLine(), scanner.getColumn());
 		}
 	}
 	
@@ -545,8 +505,7 @@ public class Main {
 		if(checkTipo(token, TipoToken.CHAR)){
 			//gerar codigo
 		}else{
-			throw new SinException(token, new TipoToken[]{TipoToken.CHAR},
-                    scanner.getLine(), scanner.getColumn());
+			throw new SinException(token, new TipoToken[]{TipoToken.CHAR}, scanner.getLine(), scanner.getColumn());
 		}
 	}
 	
@@ -572,8 +531,7 @@ public class Main {
 			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
 //				TODO: gerar codigo
 			}else{
-				throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES},
-	                    scanner.getLine(), scanner.getColumn());}
+				throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());}
 		}else{
 			scanner.rollbackToken(token);
 		}
@@ -583,20 +541,13 @@ public class Main {
 	
 	private static void OP_RELACIONAL() throws SinException, IOException, LexException, SymbolExistsException {
 		Token token = scanner.nextToken();
-		
-		if(token != null){
-		
 		if(checkTipo(token, TipoToken.OP_IGUALDADE) || checkTipo(token, TipoToken.OP_MENORQUE) || checkTipo(token, TipoToken.OP_MAIORQUE) 
-				|| checkTipo(token, TipoToken.OP_MENOR_IGUAL) || checkTipo(token, TipoToken.OP_MAIOR_IGUAL) || checkTipo(token, TipoToken.OP_DIFERENTE) 
-				|| checkTipo(token, TipoToken.OR) || checkTipo(token, TipoToken.AND)){
-		
+			|| checkTipo(token, TipoToken.OP_MENOR_IGUAL) || checkTipo(token, TipoToken.OP_MAIOR_IGUAL) || checkTipo(token, TipoToken.OP_DIFERENTE) 
+			|| checkTipo(token, TipoToken.OR) || checkTipo(token, TipoToken.AND)){
 		}else{
-			scanner.rollbackToken(token);
-			
-			/*			throw new SinException(token, new TipoToken[]{TipoToken.OP_MAIORQUE, TipoToken.OP_IGUALDADE, TipoToken.OP_MENORQUE, 
-					TipoToken.OP_MENOR_IGUAL, TipoToken.OP_MAIOR_IGUAL, TipoToken.OP_DIFERENTE
+			throw new SinException(token, new TipoToken[]{TipoToken.OP_MAIORQUE, TipoToken.OP_IGUALDADE, TipoToken.OP_MENORQUE, 
+				TipoToken.OP_MENOR_IGUAL, TipoToken.OP_MAIOR_IGUAL, TipoToken.OP_DIFERENTE
 					,TipoToken.OR, TipoToken.AND}, scanner.getLine(), scanner.getColumn());
-*/		}
 		}
 	}
 	
