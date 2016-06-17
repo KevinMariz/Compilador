@@ -46,7 +46,7 @@ public class Main {
 
                     /* Chamando a análise sintática pelo
                        símbolo inicial */
-
+                    
                     symbolTable.initScope();
                     INICIAR();
                     symbolTable.finishScope();
@@ -107,22 +107,29 @@ public class Main {
     		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_PARENTESES}, scanner.getLine(), scanner.getColumn());
     	}
     	if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
-    		token = scanner.nextToken();
+    		BLOCO();
     	}else{
     		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());
     	}
-    	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-    		PROGRAMA();
-    		token = scanner.nextToken();
-    	}else{
-    		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
+    }
+    
+    private static void BLOCO() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
+    	Token token = scanner.nextToken();
+    	
+    	if(token != null){
+    		if(checkTipo(token, TipoToken.ABRE_CHAVES)){
+    			PROGRAMA();
+    			token = scanner.nextToken();
+    		if(checkTipo(token, TipoToken.FECHA_CHAVES)){
+    				PROGRAMA();
+    			//TODO: gerar codigo
+    		}else{
+    			throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
+    		}
+    		}else{
+    			scanner.rollbackToken(token);
+    		}
     	}
-        if(checkTipo(token, TipoToken.FECHA_CHAVES)){
-        	//TODO: gerar codigo
-        }else{
-        	throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
-        }
-        
     }
     
     private static void PROGRAMA() throws IOException, LexException, SinException, SymbolExistsException, SymbolNotFoundException, InvalidTypeException {
@@ -146,18 +153,10 @@ public class Main {
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());
         	}
-        	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-        		PROGRAMA();
-        		token = scanner.nextToken();
-        	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
-        	}
-        	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
+        		BLOCO();
         		CHAM_ELSE();
         		PROGRAMA();
-        	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
-        	}
+        	
     	}else if(checkTipo(token, TipoToken.R_WHILE)){
     		token = scanner.nextToken();
     		
@@ -172,18 +171,7 @@ public class Main {
         	}else{
         		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_PARENTESES}, scanner.getLine(), scanner.getColumn());
         	}
-        	if(checkTipo(token, TipoToken.ABRE_CHAVES)){
-        		PROGRAMA();
-        		token = scanner.nextToken();
-        	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.ABRE_CHAVES}, scanner.getLine(), scanner.getColumn());
-        	}
-        	if(checkTipo(token, TipoToken.FECHA_CHAVES)){
-            	PROGRAMA();
-        		//gerar codigo
-        	}else{
-        		throw new SinException(token, new TipoToken[]{TipoToken.FECHA_CHAVES}, scanner.getLine(), scanner.getColumn());
-        	}
+        	BLOCO();
     	}else{
     		scanner.rollbackToken(token);
     		}
@@ -291,7 +279,7 @@ public class Main {
 			Token token = scanner.nextToken();
 			if(token != null){
 				if(checkTipo(token, TipoToken.OP_ATRIBUICAO)){
-					EXP();
+					EXPRESSAO();
 				}else{
 				scanner.rollbackToken(token);
 				}
@@ -316,13 +304,13 @@ public class Main {
 
 	private static void OP() throws SinException, IOException, LexException, SymbolExistsException {
 			Token token = scanner.nextToken();
-//			if(token != null){
+			if(token != null){
 				if(checkTipo(token, TipoToken.ID) || checkTipo(token, TipoToken.NUM_INTEIRO) || checkTipo(token, TipoToken.NUM_REAL)){
 					//TODO: gerer codigo
 				}else{
-					throw new SinException(token, new TipoToken[]{TipoToken.ID, TipoToken.NUM_INTEIRO, TipoToken.NUM_REAL}, scanner.getLine(), scanner.getColumn());
-//					scanner.rollbackToken(token);
-//				}
+					scanner.rollbackToken(token);
+					/*throw new SinException(token, new TipoToken[]{TipoToken.ID, TipoToken.NUM_INTEIRO, TipoToken.NUM_REAL}, scanner.getLine(), scanner.getColumn());*/
+			}
 			}
 			
 		}
@@ -509,15 +497,64 @@ public class Main {
 		}
 	}
 	
-	private static void EXPRESSAO() throws SinException, IOException, LexException, SymbolExistsException {
+	private static void EXPRESSAO() throws SinException, IOException, LexException, SymbolExistsException {	
 			EXPRESSAO_SIMPLES();
 			OP_RELACIONAL();
 			EXPRESSAO_SIMPLES();
 	}
 
 	private static void EXPRESSAO_SIMPLES() throws SinException, IOException, LexException, SymbolExistsException {
+		TERMO();
+		SINAL();
+		TERMO();
+		OP_ADITIVO();
+		TERMO();
+	}
+
+	private static void OP_ADITIVO() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		
+		if(token != null){
+			if(checkTipo(token, TipoToken.OP_MAIS) || checkTipo(token, TipoToken.OP_MENOS) || checkTipo(token, TipoToken.OR)){
+				//TODO:gerar codogo
+			}else{
+				scanner.rollbackToken(token);
+			}
+		}
+		
+	}
+
+	private static void SINAL() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		
+		if(token != null){
+			if(checkTipo(token, TipoToken.OP_MULTIPLICACAO) || checkTipo(token, TipoToken.OP_DIVISAO) || checkTipo(token, TipoToken.AND)){
+
+			}else{
+				scanner.rollbackToken(token);
+			}
+		}
+	}
+
+	private static void TERMO() throws SinException, IOException, LexException, SymbolExistsException {
+		FATOR();
+		OP_MULTIPLICATIVO();
 		FATOR();
 	}
+
+	private static void OP_MULTIPLICATIVO() throws SinException, IOException, LexException, SymbolExistsException {
+		Token token = scanner.nextToken();
+		
+		if(token != null){
+			if(checkTipo(token, TipoToken.OP_MAIS) || checkTipo(token, TipoToken.OP_MENOS) || checkTipo(token, TipoToken.OR)){
+				
+			}else{
+				scanner.rollbackToken(token);
+			}
+		}
+	}
+		
+	
 
 	private static void FATOR() throws SinException, IOException, LexException, SymbolExistsException {
 		OP();
@@ -526,7 +563,6 @@ public class Main {
 			
 		if(checkTipo(token, TipoToken.ABRE_PARENTESES)){
 			EXPRESSAO();
-			EXP();
 			token = scanner.nextToken();
 			if(checkTipo(token, TipoToken.FECHA_PARENTESES)){
 //				TODO: gerar codigo
@@ -541,14 +577,18 @@ public class Main {
 	
 	private static void OP_RELACIONAL() throws SinException, IOException, LexException, SymbolExistsException {
 		Token token = scanner.nextToken();
+		if(token != null){
 		if(checkTipo(token, TipoToken.OP_IGUALDADE) || checkTipo(token, TipoToken.OP_MENORQUE) || checkTipo(token, TipoToken.OP_MAIORQUE) 
-			|| checkTipo(token, TipoToken.OP_MENOR_IGUAL) || checkTipo(token, TipoToken.OP_MAIOR_IGUAL) || checkTipo(token, TipoToken.OP_DIFERENTE) 
-			|| checkTipo(token, TipoToken.OR) || checkTipo(token, TipoToken.AND)){
+			|| checkTipo(token, TipoToken.OP_MENOR_IGUAL) || checkTipo(token, TipoToken.OP_MAIOR_IGUAL) || checkTipo(token, TipoToken.OP_DIFERENTE)){
 		}else{
-			throw new SinException(token, new TipoToken[]{TipoToken.OP_MAIORQUE, TipoToken.OP_IGUALDADE, TipoToken.OP_MENORQUE, 
+			
+			scanner.rollbackToken(token);
+			/*throw new SinException(token, new TipoToken[]{TipoToken.OP_MAIORQUE, TipoToken.OP_IGUALDADE, TipoToken.OP_MENORQUE, 
 				TipoToken.OP_MENOR_IGUAL, TipoToken.OP_MAIOR_IGUAL, TipoToken.OP_DIFERENTE
-					,TipoToken.OR, TipoToken.AND}, scanner.getLine(), scanner.getColumn());
+					,TipoToken.OR, TipoToken.AND}, scanner.getLine(), scanner.getColumn());*/
 		}
+		}
+		
 	}
 	
 
@@ -561,6 +601,6 @@ public class Main {
     }
 
     public static void log(SymbolTable sym) {
-        //System.out.println(String.format("[%d]: %s", numLog++, sym));
+        System.out.println(String.format("[%d]: %s", numLog++, sym));
     }
 }

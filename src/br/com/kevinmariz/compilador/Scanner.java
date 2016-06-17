@@ -43,11 +43,9 @@ public class Scanner {
                 switch (st.state) {
                 case 0: {
                 	if(st.ch == '+'){
-                		st.lexema += st.ch;
-                		st.state = 1;
+                		st.token = new Token(TipoToken.OP_MAIS);
                 	} else if(st.ch == '-'){
-                		st.lexema += st.ch;
-                		st.state = 2;
+                		st.token = new Token(TipoToken.OP_MENOS);
                 	} else if(st.ch == '*'){
                 		st.token = new Token(TipoToken.OP_MULTIPLICACAO);//state 3
                 	} else if(st.ch == '/'){
@@ -129,35 +127,6 @@ public class Scanner {
 
                     break;
                 }
-                
-                case 1:{ 
-                	if(isNumber(st.ch)) {
-                		st.lexema +=st.ch;
-                		st.state = 33;
-                	}else if(st.ch == '.'){
-                		st.lexema +=st.ch;
-                		st.state = 31;
-                	} else{
-                       	st.token = new Token(TipoToken.OP_MAIS);
-                       	rollback(st.ch);
-                     }
-
-                         break;
-                     }
-                	
-                case 2:{ 
-                	if(isNumber(st.ch)) {
-                		st.lexema += st.ch;
-                		st.state = 33;
-                	}else if(st.ch == '.'){
-                		st.lexema += st.ch;
-                		st.state = 31;
-                	} else{
-                		st.token = new Token(TipoToken.OP_MENOS);
-                       	rollback(st.ch);
-                     }
-                        break;
-                     }
                 
                 case 11:{ 
                 	if(st.ch == '%'){
@@ -560,8 +529,8 @@ public class Scanner {
             }
         }
 
-/*        System.out.println("LOG: " + (st.token != null ?
-            st.token.getTipo().name() : "EOF"));*/
+        System.out.println("LOG: " + (st.token != null ?
+            st.token.getTipo().name() : "EOF"));
 
         return st.token;
     }
